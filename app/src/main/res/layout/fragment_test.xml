@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/et_merchant"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="商家（例如：麦当劳）" />
+
+        <EditText
+            android:id="@+id/et_pickup_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="取餐码（例如：12345）"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/btn_pick_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="选择本地图片（可选）"
+            android:layout_marginTop="8dp"/>
+
+        <ImageView
+            android:id="@+id/iv_preview"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="8dp"
+            android:scaleType="centerCrop"
+            android:src="@android:drawable/ic_menu_gallery"/>
+
+        <EditText
+            android:id="@+id/et_custom_json"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:hint="（可选）自定义 param_v2 JSON，优先使用"
+            android:inputType="textMultiLine"
+            android:gravity="top"
+            android:layout_marginTop="8dp"/>
+
+        <Button
+            android:id="@+id/btn_upload_and_send"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="上传图片并发送焦点通知（或直接发送）"
+            android:layout_marginTop="12dp"/>
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:visibility="gone"
+            android:layout_gravity="center"
+            android:layout_marginTop="12dp" />
+
+    </LinearLayout>
+</ScrollView>
