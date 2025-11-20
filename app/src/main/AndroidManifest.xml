@@ -29,9 +29,9 @@
         android:requestLegacyExternalStorage="true"
         android:networkSecurityConfig="@xml/network_security_config">
 
-        <!-- 主页面 -->
+        <!-- 主页面 - 新的Compose界面 -->
         <activity
-            android:name=".MainActivityNew"
+            android:name=".ui.MainComposeActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.HyperNotification.NoActionBar">
@@ -40,6 +40,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- 旧版主页面（保留但不作为启动器） -->
+        <activity
+            android:name=".MainActivityNew"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.HyperNotification.NoActionBar" />
 
         <!-- 老版设置页面（仍保留） -->
         <activity

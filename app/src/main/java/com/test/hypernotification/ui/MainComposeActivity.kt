@@ -1,6 +1,10 @@
 package com.test.hypernotification.ui
 
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -12,10 +16,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.test.hypernotification.RecognitionService
 import com.test.hypernotification.ui.theme.HyperNotificationTheme
 
 class MainComposeActivity : ComponentActivity() {
@@ -136,6 +142,11 @@ fun StatusItem(label: String, value: String, isStatus: Boolean) {
 @Composable
 fun SettingsScreen() {
     val viewModel: SettingsViewModel = viewModel()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.loadSettings(context)
+    }
 
     Column(
         modifier = Modifier
@@ -146,7 +157,7 @@ fun SettingsScreen() {
     ) {
         MiuiCard {
             Text(
-                "API配置",
+                "AI配置",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -155,8 +166,12 @@ fun SettingsScreen() {
 
             OutlinedTextField(
                 value = viewModel.apiToken.collectAsState().value,
-                onValueChange = { viewModel.updateApiToken(it) },
-                label = { Text("API Token") },
+                onValueChange = {
+                    viewModel.updateApiToken(it)
+                    viewModel.saveSettings(context)
+                },
+                label = { Text("智谱AI Token") },
+                placeholder = { Text("请输入GLM-4V API Token") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp)
@@ -165,7 +180,7 @@ fun SettingsScreen() {
 
         MiuiCard {
             Text(
-                "通知设置",
+                "识别设置",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -176,16 +191,10 @@ fun SettingsScreen() {
                 title = "启用焦点通知",
                 description = "在屏幕顶部显示识别结果",
                 checked = viewModel.enableFocusNotification.collectAsState().value,
-                onCheckedChange = { viewModel.updateFocusNotification(it) }
-            )
-
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
-
-            MiuiSwitchPreference(
-                title = "自动识别",
-                description = "检测到取餐码通知时自动识别",
-                checked = viewModel.autoRecognition.collectAsState().value,
-                onCheckedChange = { viewModel.updateAutoRecognition(it) }
+                onCheckedChange = {
+                    viewModel.updateFocusNotification(it)
+                    viewModel.saveSettings(context)
+                }
             )
 
             Divider(modifier = Modifier.padding(vertical = 8.dp))
@@ -194,7 +203,44 @@ fun SettingsScreen() {
                 title = "振动反馈",
                 description = "识别完成时振动提醒",
                 checked = viewModel.vibrationFeedback.collectAsState().value,
-                onCheckedChange = { viewModel.updateVibrationFeedback(it) }
+                onCheckedChange = {
+                    viewModel.updateVibrationFeedback(it)
+                    viewModel.saveSettings(context)
+                }
+            )
+        }
+
+        MiuiCard {
+            Text(
+                "磁贴设置",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            Text(
+                "延迟时间: ${viewModel.tileDelay.collectAsState().value}ms",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Slider(
+                value = viewModel.tileDelay.collectAsState().value.toFloat(),
+                onValueChange = {
+                    viewModel.updateTileDelay(it.toInt())
+                    viewModel.saveSettings(context)
+                },
+                valueRange = 0f..3000f,
+                steps = 5,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Text(
+                "设置点击快捷磁贴后的延迟时间",
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -265,6 +311,7 @@ fun LogScreen() {
 @Composable
 fun TestScreen() {
     var isRecognizing by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -294,8 +341,20 @@ fun TestScreen() {
                 MiuiButton(
                     text = if (isRecognizing) "识别中..." else "开始识别",
                     onClick = {
-                        isRecognizing = !isRecognizing
-                        // TODO: 调用识别服务
+                        if (!isRecognizing) {
+                            isRecognizing = true
+                            // 启动识别服务
+                            val intent = Intent(context, RecognitionService::class.java)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                context.startForegroundService(intent)
+                            } else {
+                                context.startService(intent)
+                            }
+                            // 3秒后重置状态
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                isRecognizing = false
+                            }, 3000)
+                        }
                     },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isRecognizing
