@@ -1,3 +1,6 @@
+本项目已有上位替代。
+
+<del>
 # 取餐码识别 (HyperNotification)
 
 一个用于识别取餐码的Android应用，支持截图识别和焦点通知(岛通知)功能。
@@ -132,7 +135,7 @@ chmod +x gradlew
 1. 需要Android 8.0（API 26）及以上版本
 2. Root模式截图功能需要Root权限（使用screencap命令）
 3. 普通模式使用MediaProjection API，需要授予截屏权限
-4. 焦点通知功能仅在支持的ROM上生效（如MIUI、ColorOS）
+4. 焦点通知功能仅在支持的ROM上生效
 
 ## 开发者
 
@@ -141,3 +144,4 @@ chmod +x gradlew
 ## License
 
 MIT License
+</del>
